@@ -37,3 +37,16 @@ habitat,p,paths
 habitat,u,urban
 habitat,w,waste
 habitat,d,woods
+cap-color,n,brown
+cap-color,b,buff
+cap-color,c,cinnamon
+cap-color,g,gray
+cap-color,r,green
+cap-color,p,pink
+cap-color,u,purple
+cap-color,e,red
+cap-color,w,white
+cap-color,y,yellow
+edible,p,poisonous
+edible,u,unknown
+edible,e,edible

@@ -88,20 +88,68 @@ img {
 <pre class="r"><code>sURL &lt;- &quot;https://raw.githubusercontent.com/LovinSpoonful/Week3-R/62d6aed42bdf8869a8c692c0c0108782703de249/MushData.csv&quot;
 dfMushRoom &lt;- read.table(file = sURL, header = FALSE, sep = &quot;,&quot;, stringsAsFactors = FALSE)
 
-ncol(dfMushRoom)</code></pre>
-<pre><code>## [1] 23</code></pre>
-<pre class="r"><code>nrow(dfMushRoom)</code></pre>
-<pre><code>## [1] 12</code></pre>
+head(dfMushRoom)</code></pre>
+<pre><code>##   V1 V2 V3 V4 V5 V6 V7 V8 V9 V10 V11 V12 V13 V14 V15 V16 V17 V18 V19 V20
+## 1  p  x  s  n  t  p  f  c  n   k   e   e   s   s   w   w   p   w   o   p
+## 2  e  x  s  y  t  a  f  c  b   k   e   c   s   s   w   w   p   w   o   p
+## 3  e  b  s  w  t  l  f  c  b   n   e   c   s   s   w   w   p   w   o   p
+## 4  p  x  y  w  t  p  f  c  n   n   e   e   s   s   w   w   p   w   o   p
+## 5  e  x  s  g  f  n  f  w  b   k   t   e   s   s   w   w   p   w   o   e
+## 6  e  x  y  y  t  a  f  c  b   n   e   c   s   s   w   w   p   w   o   p
+##   V21 V22 V23
+## 1   k   s   u
+## 2   n   n   g
+## 3   n   n   m
+## 4   k   s   u
+## 5   n   a   g
+## 6   k   n   g</code></pre>
 <p>Twenty two mushroom attributes are listed in <a href="https://archive.ics.uci.edu/ml/machine-learning-databases/mushroom/agaricus-lepiota.names" class="uri">https://archive.ics.uci.edu/ml/machine-learning-databases/mushroom/agaricus-lepiota.names</a>.</p>
 <p>Since there are twenty three columns in the data set, I suspect the 23rd column indicates if the mushroom is edible.</p>
 <p>Let’s assign the mushroom attributes as the dataframe column header names:</p>
-<pre class="r"><code>cDim &lt;- c(&quot;cap-shape&quot;, &quot;cap-surface&quot;, &quot;cap-color&quot;, &quot;bruises&quot;, &quot;odor&quot;, &quot;gill-attachment&quot;, 
+<pre class="r"><code>cAttributeNames &lt;- c(&quot;cap-shape&quot;, &quot;cap-surface&quot;, &quot;cap-color&quot;, &quot;bruises&quot;, &quot;odor&quot;, &quot;gill-attachment&quot;, 
           &quot;gill-spacing&quot;, &quot;gill-size&quot;, &quot;gill-color&quot;, &quot;stalk-shape&quot;, &quot;stalk-root&quot;, 
           &quot;stalk-surface-above-ring&quot;, &quot;stalk-surface-below-ring&quot;, &quot;stalk-color-above-ring&quot;, 
           &quot;stalk-color-below-ring&quot;, &quot;veil-type&quot;, &quot;veil-color&quot;, &quot;ring-number&quot;, &quot;ring-type&quot;, 
           &quot;spore-print-color&quot;, &quot;population&quot;, &quot;habitat&quot;, &quot;edible&quot;)
 
-colnames(dfMushRoom) &lt;- cDim</code></pre>
+colnames(dfMushRoom) &lt;- cAttributeNames
+
+head(dfMushRoom)</code></pre>
+<pre><code>##   cap-shape cap-surface cap-color bruises odor gill-attachment
+## 1         p           x         s       n    t               p
+## 2         e           x         s       y    t               a
+## 3         e           b         s       w    t               l
+## 4         p           x         y       w    t               p
+## 5         e           x         s       g    f               n
+## 6         e           x         y       y    t               a
+##   gill-spacing gill-size gill-color stalk-shape stalk-root
+## 1            f         c          n           k          e
+## 2            f         c          b           k          e
+## 3            f         c          b           n          e
+## 4            f         c          n           n          e
+## 5            f         w          b           k          t
+## 6            f         c          b           n          e
+##   stalk-surface-above-ring stalk-surface-below-ring stalk-color-above-ring
+## 1                        e                        s                      s
+## 2                        c                        s                      s
+## 3                        c                        s                      s
+## 4                        e                        s                      s
+## 5                        e                        s                      s
+## 6                        c                        s                      s
+##   stalk-color-below-ring veil-type veil-color ring-number ring-type
+## 1                      w         w          p           w         o
+## 2                      w         w          p           w         o
+## 3                      w         w          p           w         o
+## 4                      w         w          p           w         o
+## 5                      w         w          p           w         o
+## 6                      w         w          p           w         o
+##   spore-print-color population habitat edible
+## 1                 p          k       s      u
+## 2                 p          n       n      g
+## 3                 p          n       n      m
+## 4                 p          k       s      u
+## 5                 e          n       a      g
+## 6                 p          k       n      g</code></pre>
 <p>Next we will focus on the most important attributes for determining edibility.</p>
 <p>Again, from <a href="https://archive.ics.uci.edu/ml/machine-learning-databases/mushroom/agaricus-lepiota.names" class="uri">https://archive.ics.uci.edu/ml/machine-learning-databases/mushroom/agaricus-lepiota.names</a> -</p>
 <pre><code>P_1) odor=NOT(almond.OR.anise.OR.none)
@@ -118,7 +166,6 @@ P_4) habitat=leaves.AND.cap-color=white
          100% accuracy
          
 
-
  odor:                     almond=a,anise=l,creosote=c,fishy=y,foul=f,
                            musty=m,none=n,pungent=p,spicy=s
  
@@ -131,38 +178,957 @@ P_4) habitat=leaves.AND.cap-color=white
                            pink=p,red=e,white=w,yellow=y
  
  habitat:                  grasses=g,leaves=l,meadows=m,paths=p,
-                           urban=u,waste=w,woods=d                                 
-                              
-                              </code></pre>
-<pre class="r"><code>dfEdible &lt;- subset(dfMushRoom, select = c(&quot;odor&quot;,&quot;spore-print-color&quot;,&quot;stalk-surface-below-ring&quot;,&quot;stalk-color-above-ring&quot;,&quot;habitat&quot;,&quot;cap-color&quot;,&quot;edible&quot;))
+                           urban=u,waste=w,woods=d                                 </code></pre>
+<p>Let’s make a subset of classifier attribute names:</p>
+<pre class="r"><code>dfClassifier &lt;- subset(dfMushRoom, select = c(&quot;odor&quot;,&quot;spore-print-color&quot;,&quot;stalk-surface-below-ring&quot;,&quot;stalk-color-above-ring&quot;,&quot;habitat&quot;,&quot;cap-color&quot;,&quot;edible&quot;))
+colnames(dfClassifier)</code></pre>
+<pre><code>## [1] &quot;odor&quot;                     &quot;spore-print-color&quot;       
+## [3] &quot;stalk-surface-below-ring&quot; &quot;stalk-color-above-ring&quot;  
+## [5] &quot;habitat&quot;                  &quot;cap-color&quot;               
+## [7] &quot;edible&quot;</code></pre>
+<pre class="r"><code>#  get the key classifiers, value codes and value decriptions
 
-dfEdible</code></pre>
-<pre><code>##    odor spore-print-color stalk-surface-below-ring stalk-color-above-ring
-## 1     t                 p                        s                      s
-## 2     t                 p                        s                      s
-## 3     t                 p                        s                      s
-## 4     t                 p                        s                      s
-## 5     f                 e                        s                      s
-## 6     t                 p                        s                      s
-## 7     t                 p                        s                      s
-## 8     t                 p                        s                      s
-## 9     t                 p                        s                      s
-## 10    t                 p                        s                      s
-## 11    t                 p                        s                      s
-## 12    t                 p                        s                      s
-##    habitat cap-color edible
-## 1        s         s      u
-## 2        n         s      g
-## 3        n         s      m
-## 4        s         y      u
-## 5        a         s      g
-## 6        n         y      g
-## 7        n         s      m
-## 8        s         y      m
-## 9        v         y      g
-## 10       s         s      m
-## 11       n         y      g
-## 12       s         y      m</code></pre>
+sURL = &quot;https://raw.githubusercontent.com/LovinSpoonful/Week3-R/74daca35112f48ccc47d6ee33d8c9c3458c3cfb4/AttributeValues.csv&quot;
+dfClassCodes &lt;- read.table(file = sURL, header = TRUE, sep = &quot;,&quot;, stringsAsFactors = FALSE)
+
+colnames(dfClassCodes)</code></pre>
+<pre><code>## [1] &quot;AttributeName&quot; &quot;Code&quot;          &quot;Description&quot;</code></pre>
+<pre class="r"><code>nrow(dfClassCodes)</code></pre>
+<pre><code>## [1] 38</code></pre>
+<pre class="r"><code>for (i in 1:nrow(dfClassCodes))
+{
+  sAttribute &lt;- dfClassCodes[i,1]
+  sCode &lt;- dfClassCodes[i,2]
+  sDescription &lt;- dfClassCodes[i,3]
+  
+  # i'm trying to say &quot;check every row in dfClassifier, column sAttribute - if the code is sCode, change it to sDescription&quot;&quot;
+# dfClassifier[1:nrow(dfClassifier),sAttribute]
+  
+  for (j in 1:nrow(dfClassifier))
+  {
+   print (i)
+   print(j)
+  }
+    # print(dfClassifier[j,sAttribute])
+ 
+}</code></pre>
+<pre><code>## [1] 1
+## [1] 1
+## [1] 1
+## [1] 2
+## [1] 1
+## [1] 3
+## [1] 1
+## [1] 4
+## [1] 1
+## [1] 5
+## [1] 1
+## [1] 6
+## [1] 1
+## [1] 7
+## [1] 1
+## [1] 8
+## [1] 1
+## [1] 9
+## [1] 1
+## [1] 10
+## [1] 1
+## [1] 11
+## [1] 1
+## [1] 12
+## [1] 2
+## [1] 1
+## [1] 2
+## [1] 2
+## [1] 2
+## [1] 3
+## [1] 2
+## [1] 4
+## [1] 2
+## [1] 5
+## [1] 2
+## [1] 6
+## [1] 2
+## [1] 7
+## [1] 2
+## [1] 8
+## [1] 2
+## [1] 9
+## [1] 2
+## [1] 10
+## [1] 2
+## [1] 11
+## [1] 2
+## [1] 12
+## [1] 3
+## [1] 1
+## [1] 3
+## [1] 2
+## [1] 3
+## [1] 3
+## [1] 3
+## [1] 4
+## [1] 3
+## [1] 5
+## [1] 3
+## [1] 6
+## [1] 3
+## [1] 7
+## [1] 3
+## [1] 8
+## [1] 3
+## [1] 9
+## [1] 3
+## [1] 10
+## [1] 3
+## [1] 11
+## [1] 3
+## [1] 12
+## [1] 4
+## [1] 1
+## [1] 4
+## [1] 2
+## [1] 4
+## [1] 3
+## [1] 4
+## [1] 4
+## [1] 4
+## [1] 5
+## [1] 4
+## [1] 6
+## [1] 4
+## [1] 7
+## [1] 4
+## [1] 8
+## [1] 4
+## [1] 9
+## [1] 4
+## [1] 10
+## [1] 4
+## [1] 11
+## [1] 4
+## [1] 12
+## [1] 5
+## [1] 1
+## [1] 5
+## [1] 2
+## [1] 5
+## [1] 3
+## [1] 5
+## [1] 4
+## [1] 5
+## [1] 5
+## [1] 5
+## [1] 6
+## [1] 5
+## [1] 7
+## [1] 5
+## [1] 8
+## [1] 5
+## [1] 9
+## [1] 5
+## [1] 10
+## [1] 5
+## [1] 11
+## [1] 5
+## [1] 12
+## [1] 6
+## [1] 1
+## [1] 6
+## [1] 2
+## [1] 6
+## [1] 3
+## [1] 6
+## [1] 4
+## [1] 6
+## [1] 5
+## [1] 6
+## [1] 6
+## [1] 6
+## [1] 7
+## [1] 6
+## [1] 8
+## [1] 6
+## [1] 9
+## [1] 6
+## [1] 10
+## [1] 6
+## [1] 11
+## [1] 6
+## [1] 12
+## [1] 7
+## [1] 1
+## [1] 7
+## [1] 2
+## [1] 7
+## [1] 3
+## [1] 7
+## [1] 4
+## [1] 7
+## [1] 5
+## [1] 7
+## [1] 6
+## [1] 7
+## [1] 7
+## [1] 7
+## [1] 8
+## [1] 7
+## [1] 9
+## [1] 7
+## [1] 10
+## [1] 7
+## [1] 11
+## [1] 7
+## [1] 12
+## [1] 8
+## [1] 1
+## [1] 8
+## [1] 2
+## [1] 8
+## [1] 3
+## [1] 8
+## [1] 4
+## [1] 8
+## [1] 5
+## [1] 8
+## [1] 6
+## [1] 8
+## [1] 7
+## [1] 8
+## [1] 8
+## [1] 8
+## [1] 9
+## [1] 8
+## [1] 10
+## [1] 8
+## [1] 11
+## [1] 8
+## [1] 12
+## [1] 9
+## [1] 1
+## [1] 9
+## [1] 2
+## [1] 9
+## [1] 3
+## [1] 9
+## [1] 4
+## [1] 9
+## [1] 5
+## [1] 9
+## [1] 6
+## [1] 9
+## [1] 7
+## [1] 9
+## [1] 8
+## [1] 9
+## [1] 9
+## [1] 9
+## [1] 10
+## [1] 9
+## [1] 11
+## [1] 9
+## [1] 12
+## [1] 10
+## [1] 1
+## [1] 10
+## [1] 2
+## [1] 10
+## [1] 3
+## [1] 10
+## [1] 4
+## [1] 10
+## [1] 5
+## [1] 10
+## [1] 6
+## [1] 10
+## [1] 7
+## [1] 10
+## [1] 8
+## [1] 10
+## [1] 9
+## [1] 10
+## [1] 10
+## [1] 10
+## [1] 11
+## [1] 10
+## [1] 12
+## [1] 11
+## [1] 1
+## [1] 11
+## [1] 2
+## [1] 11
+## [1] 3
+## [1] 11
+## [1] 4
+## [1] 11
+## [1] 5
+## [1] 11
+## [1] 6
+## [1] 11
+## [1] 7
+## [1] 11
+## [1] 8
+## [1] 11
+## [1] 9
+## [1] 11
+## [1] 10
+## [1] 11
+## [1] 11
+## [1] 11
+## [1] 12
+## [1] 12
+## [1] 1
+## [1] 12
+## [1] 2
+## [1] 12
+## [1] 3
+## [1] 12
+## [1] 4
+## [1] 12
+## [1] 5
+## [1] 12
+## [1] 6
+## [1] 12
+## [1] 7
+## [1] 12
+## [1] 8
+## [1] 12
+## [1] 9
+## [1] 12
+## [1] 10
+## [1] 12
+## [1] 11
+## [1] 12
+## [1] 12
+## [1] 13
+## [1] 1
+## [1] 13
+## [1] 2
+## [1] 13
+## [1] 3
+## [1] 13
+## [1] 4
+## [1] 13
+## [1] 5
+## [1] 13
+## [1] 6
+## [1] 13
+## [1] 7
+## [1] 13
+## [1] 8
+## [1] 13
+## [1] 9
+## [1] 13
+## [1] 10
+## [1] 13
+## [1] 11
+## [1] 13
+## [1] 12
+## [1] 14
+## [1] 1
+## [1] 14
+## [1] 2
+## [1] 14
+## [1] 3
+## [1] 14
+## [1] 4
+## [1] 14
+## [1] 5
+## [1] 14
+## [1] 6
+## [1] 14
+## [1] 7
+## [1] 14
+## [1] 8
+## [1] 14
+## [1] 9
+## [1] 14
+## [1] 10
+## [1] 14
+## [1] 11
+## [1] 14
+## [1] 12
+## [1] 15
+## [1] 1
+## [1] 15
+## [1] 2
+## [1] 15
+## [1] 3
+## [1] 15
+## [1] 4
+## [1] 15
+## [1] 5
+## [1] 15
+## [1] 6
+## [1] 15
+## [1] 7
+## [1] 15
+## [1] 8
+## [1] 15
+## [1] 9
+## [1] 15
+## [1] 10
+## [1] 15
+## [1] 11
+## [1] 15
+## [1] 12
+## [1] 16
+## [1] 1
+## [1] 16
+## [1] 2
+## [1] 16
+## [1] 3
+## [1] 16
+## [1] 4
+## [1] 16
+## [1] 5
+## [1] 16
+## [1] 6
+## [1] 16
+## [1] 7
+## [1] 16
+## [1] 8
+## [1] 16
+## [1] 9
+## [1] 16
+## [1] 10
+## [1] 16
+## [1] 11
+## [1] 16
+## [1] 12
+## [1] 17
+## [1] 1
+## [1] 17
+## [1] 2
+## [1] 17
+## [1] 3
+## [1] 17
+## [1] 4
+## [1] 17
+## [1] 5
+## [1] 17
+## [1] 6
+## [1] 17
+## [1] 7
+## [1] 17
+## [1] 8
+## [1] 17
+## [1] 9
+## [1] 17
+## [1] 10
+## [1] 17
+## [1] 11
+## [1] 17
+## [1] 12
+## [1] 18
+## [1] 1
+## [1] 18
+## [1] 2
+## [1] 18
+## [1] 3
+## [1] 18
+## [1] 4
+## [1] 18
+## [1] 5
+## [1] 18
+## [1] 6
+## [1] 18
+## [1] 7
+## [1] 18
+## [1] 8
+## [1] 18
+## [1] 9
+## [1] 18
+## [1] 10
+## [1] 18
+## [1] 11
+## [1] 18
+## [1] 12
+## [1] 19
+## [1] 1
+## [1] 19
+## [1] 2
+## [1] 19
+## [1] 3
+## [1] 19
+## [1] 4
+## [1] 19
+## [1] 5
+## [1] 19
+## [1] 6
+## [1] 19
+## [1] 7
+## [1] 19
+## [1] 8
+## [1] 19
+## [1] 9
+## [1] 19
+## [1] 10
+## [1] 19
+## [1] 11
+## [1] 19
+## [1] 12
+## [1] 20
+## [1] 1
+## [1] 20
+## [1] 2
+## [1] 20
+## [1] 3
+## [1] 20
+## [1] 4
+## [1] 20
+## [1] 5
+## [1] 20
+## [1] 6
+## [1] 20
+## [1] 7
+## [1] 20
+## [1] 8
+## [1] 20
+## [1] 9
+## [1] 20
+## [1] 10
+## [1] 20
+## [1] 11
+## [1] 20
+## [1] 12
+## [1] 21
+## [1] 1
+## [1] 21
+## [1] 2
+## [1] 21
+## [1] 3
+## [1] 21
+## [1] 4
+## [1] 21
+## [1] 5
+## [1] 21
+## [1] 6
+## [1] 21
+## [1] 7
+## [1] 21
+## [1] 8
+## [1] 21
+## [1] 9
+## [1] 21
+## [1] 10
+## [1] 21
+## [1] 11
+## [1] 21
+## [1] 12
+## [1] 22
+## [1] 1
+## [1] 22
+## [1] 2
+## [1] 22
+## [1] 3
+## [1] 22
+## [1] 4
+## [1] 22
+## [1] 5
+## [1] 22
+## [1] 6
+## [1] 22
+## [1] 7
+## [1] 22
+## [1] 8
+## [1] 22
+## [1] 9
+## [1] 22
+## [1] 10
+## [1] 22
+## [1] 11
+## [1] 22
+## [1] 12
+## [1] 23
+## [1] 1
+## [1] 23
+## [1] 2
+## [1] 23
+## [1] 3
+## [1] 23
+## [1] 4
+## [1] 23
+## [1] 5
+## [1] 23
+## [1] 6
+## [1] 23
+## [1] 7
+## [1] 23
+## [1] 8
+## [1] 23
+## [1] 9
+## [1] 23
+## [1] 10
+## [1] 23
+## [1] 11
+## [1] 23
+## [1] 12
+## [1] 24
+## [1] 1
+## [1] 24
+## [1] 2
+## [1] 24
+## [1] 3
+## [1] 24
+## [1] 4
+## [1] 24
+## [1] 5
+## [1] 24
+## [1] 6
+## [1] 24
+## [1] 7
+## [1] 24
+## [1] 8
+## [1] 24
+## [1] 9
+## [1] 24
+## [1] 10
+## [1] 24
+## [1] 11
+## [1] 24
+## [1] 12
+## [1] 25
+## [1] 1
+## [1] 25
+## [1] 2
+## [1] 25
+## [1] 3
+## [1] 25
+## [1] 4
+## [1] 25
+## [1] 5
+## [1] 25
+## [1] 6
+## [1] 25
+## [1] 7
+## [1] 25
+## [1] 8
+## [1] 25
+## [1] 9
+## [1] 25
+## [1] 10
+## [1] 25
+## [1] 11
+## [1] 25
+## [1] 12
+## [1] 26
+## [1] 1
+## [1] 26
+## [1] 2
+## [1] 26
+## [1] 3
+## [1] 26
+## [1] 4
+## [1] 26
+## [1] 5
+## [1] 26
+## [1] 6
+## [1] 26
+## [1] 7
+## [1] 26
+## [1] 8
+## [1] 26
+## [1] 9
+## [1] 26
+## [1] 10
+## [1] 26
+## [1] 11
+## [1] 26
+## [1] 12
+## [1] 27
+## [1] 1
+## [1] 27
+## [1] 2
+## [1] 27
+## [1] 3
+## [1] 27
+## [1] 4
+## [1] 27
+## [1] 5
+## [1] 27
+## [1] 6
+## [1] 27
+## [1] 7
+## [1] 27
+## [1] 8
+## [1] 27
+## [1] 9
+## [1] 27
+## [1] 10
+## [1] 27
+## [1] 11
+## [1] 27
+## [1] 12
+## [1] 28
+## [1] 1
+## [1] 28
+## [1] 2
+## [1] 28
+## [1] 3
+## [1] 28
+## [1] 4
+## [1] 28
+## [1] 5
+## [1] 28
+## [1] 6
+## [1] 28
+## [1] 7
+## [1] 28
+## [1] 8
+## [1] 28
+## [1] 9
+## [1] 28
+## [1] 10
+## [1] 28
+## [1] 11
+## [1] 28
+## [1] 12
+## [1] 29
+## [1] 1
+## [1] 29
+## [1] 2
+## [1] 29
+## [1] 3
+## [1] 29
+## [1] 4
+## [1] 29
+## [1] 5
+## [1] 29
+## [1] 6
+## [1] 29
+## [1] 7
+## [1] 29
+## [1] 8
+## [1] 29
+## [1] 9
+## [1] 29
+## [1] 10
+## [1] 29
+## [1] 11
+## [1] 29
+## [1] 12
+## [1] 30
+## [1] 1
+## [1] 30
+## [1] 2
+## [1] 30
+## [1] 3
+## [1] 30
+## [1] 4
+## [1] 30
+## [1] 5
+## [1] 30
+## [1] 6
+## [1] 30
+## [1] 7
+## [1] 30
+## [1] 8
+## [1] 30
+## [1] 9
+## [1] 30
+## [1] 10
+## [1] 30
+## [1] 11
+## [1] 30
+## [1] 12
+## [1] 31
+## [1] 1
+## [1] 31
+## [1] 2
+## [1] 31
+## [1] 3
+## [1] 31
+## [1] 4
+## [1] 31
+## [1] 5
+## [1] 31
+## [1] 6
+## [1] 31
+## [1] 7
+## [1] 31
+## [1] 8
+## [1] 31
+## [1] 9
+## [1] 31
+## [1] 10
+## [1] 31
+## [1] 11
+## [1] 31
+## [1] 12
+## [1] 32
+## [1] 1
+## [1] 32
+## [1] 2
+## [1] 32
+## [1] 3
+## [1] 32
+## [1] 4
+## [1] 32
+## [1] 5
+## [1] 32
+## [1] 6
+## [1] 32
+## [1] 7
+## [1] 32
+## [1] 8
+## [1] 32
+## [1] 9
+## [1] 32
+## [1] 10
+## [1] 32
+## [1] 11
+## [1] 32
+## [1] 12
+## [1] 33
+## [1] 1
+## [1] 33
+## [1] 2
+## [1] 33
+## [1] 3
+## [1] 33
+## [1] 4
+## [1] 33
+## [1] 5
+## [1] 33
+## [1] 6
+## [1] 33
+## [1] 7
+## [1] 33
+## [1] 8
+## [1] 33
+## [1] 9
+## [1] 33
+## [1] 10
+## [1] 33
+## [1] 11
+## [1] 33
+## [1] 12
+## [1] 34
+## [1] 1
+## [1] 34
+## [1] 2
+## [1] 34
+## [1] 3
+## [1] 34
+## [1] 4
+## [1] 34
+## [1] 5
+## [1] 34
+## [1] 6
+## [1] 34
+## [1] 7
+## [1] 34
+## [1] 8
+## [1] 34
+## [1] 9
+## [1] 34
+## [1] 10
+## [1] 34
+## [1] 11
+## [1] 34
+## [1] 12
+## [1] 35
+## [1] 1
+## [1] 35
+## [1] 2
+## [1] 35
+## [1] 3
+## [1] 35
+## [1] 4
+## [1] 35
+## [1] 5
+## [1] 35
+## [1] 6
+## [1] 35
+## [1] 7
+## [1] 35
+## [1] 8
+## [1] 35
+## [1] 9
+## [1] 35
+## [1] 10
+## [1] 35
+## [1] 11
+## [1] 35
+## [1] 12
+## [1] 36
+## [1] 1
+## [1] 36
+## [1] 2
+## [1] 36
+## [1] 3
+## [1] 36
+## [1] 4
+## [1] 36
+## [1] 5
+## [1] 36
+## [1] 6
+## [1] 36
+## [1] 7
+## [1] 36
+## [1] 8
+## [1] 36
+## [1] 9
+## [1] 36
+## [1] 10
+## [1] 36
+## [1] 11
+## [1] 36
+## [1] 12
+## [1] 37
+## [1] 1
+## [1] 37
+## [1] 2
+## [1] 37
+## [1] 3
+## [1] 37
+## [1] 4
+## [1] 37
+## [1] 5
+## [1] 37
+## [1] 6
+## [1] 37
+## [1] 7
+## [1] 37
+## [1] 8
+## [1] 37
+## [1] 9
+## [1] 37
+## [1] 10
+## [1] 37
+## [1] 11
+## [1] 37
+## [1] 12
+## [1] 38
+## [1] 1
+## [1] 38
+## [1] 2
+## [1] 38
+## [1] 3
+## [1] 38
+## [1] 4
+## [1] 38
+## [1] 5
+## [1] 38
+## [1] 6
+## [1] 38
+## [1] 7
+## [1] 38
+## [1] 8
+## [1] 38
+## [1] 9
+## [1] 38
+## [1] 10
+## [1] 38
+## [1] 11
+## [1] 38
+## [1] 12</code></pre>
+<pre class="r"><code># for(i in 1:nrow(lookup.table)){
+#  c&lt;-lookup.table[b,2]
+#  d&lt;-lookup.table[b,3]
+#  original.data_modified[original.data == c] &lt;- d
+#}</code></pre>
 </div>
 
 

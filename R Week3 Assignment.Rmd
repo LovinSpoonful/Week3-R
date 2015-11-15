@@ -40,8 +40,8 @@ First we will import the mushroom data:
 sURL <- "https://raw.githubusercontent.com/LovinSpoonful/Week3-R/62d6aed42bdf8869a8c692c0c0108782703de249/MushData.csv"
 dfMushRoom <- read.table(file = sURL, header = FALSE, sep = ",", stringsAsFactors = FALSE)
 
-ncol(dfMushRoom)
-nrow(dfMushRoom)
+head(dfMushRoom)  # verification
+
 
 ```
   
@@ -50,22 +50,24 @@ nrow(dfMushRoom)
 
 Twenty two mushroom attributes are listed in https://archive.ics.uci.edu/ml/machine-learning-databases/mushroom/agaricus-lepiota.names.
 
-  
-Since there are twenty three columns in the data set, I suspect the 23rd column indicates if the mushroom is edible.
+The first column in the dataset is the classification (edible / poisonous), the rest are the mushroom characteristics.
 
 
-Let's assign the mushroom attributes as the dataframe column header names:
+Let's assign the dataset column headers to the dataframe column headers:
 
 
 ```{r}
 
-cDim <- c("cap-shape", "cap-surface", "cap-color", "bruises", "odor", "gill-attachment", 
+# todo: find a way not to hard code these literals
+cAttributeNames <- c("edible","cap-shape", "cap-surface", "cap-color", "bruises", "odor", "gill-attachment", 
           "gill-spacing", "gill-size", "gill-color", "stalk-shape", "stalk-root", 
           "stalk-surface-above-ring", "stalk-surface-below-ring", "stalk-color-above-ring", 
           "stalk-color-below-ring", "veil-type", "veil-color", "ring-number", "ring-type", 
-          "spore-print-color", "population", "habitat", "edible")
+          "spore-print-color", "population", "habitat")
 
-colnames(dfMushRoom) <- cDim
+colnames(dfMushRoom) <- cAttributeNames
+
+head(dfMushRoom)
 
 ```
   
@@ -91,7 +93,6 @@ Again, from https://archive.ics.uci.edu/ml/machine-learning-databases/mushroom/a
   	         100% accuracy
 	         
     
-    
      odor:                     almond=a,anise=l,creosote=c,fishy=y,foul=f,
                                musty=m,none=n,pungent=p,spicy=s
      
@@ -104,21 +105,56 @@ Again, from https://archive.ics.uci.edu/ml/machine-learning-databases/mushroom/a
                                pink=p,red=e,white=w,yellow=y
      
      habitat:                  grasses=g,leaves=l,meadows=m,paths=p,
-                               urban=u,waste=w,woods=d                                 
-                                  
-                                  
- 
+                               urban=u,waste=w,woods=d     
+    
+     cap-color:                brown=n,buff=b,cinnamon=c,gray=g,green=r,
+                               pink=p,purple=u,red=e,white=w,yellow=y
 
+
+Let's make a subset of classifier attribute names:
 
 ```{r}
 
-dfEdible <- subset(dfMushRoom, select = c("odor","spore-print-color","stalk-surface-below-ring","stalk-color-above-ring","habitat","cap-color","edible"))
+# todo: find a way not to hard code these literals
+dfClassifier <- subset(dfMushRoom, select = c("edible","odor","spore-print-color","stalk-surface-below-ring","stalk-color-above-ring","habitat","cap-color"))
+colnames(dfClassifier)
 
-dfEdible
+dfClassifier
 
 
 
 
+#  get the key classifiers, value codes and value decriptions
+
+sURL = "https://raw.githubusercontent.com/LovinSpoonful/Week3-R/74daca35112f48ccc47d6ee33d8c9c3458c3cfb4/AttributeValues.csv"
+dfClassCodes <- read.table(file = sURL, header = TRUE, sep = ",", stringsAsFactors = FALSE)
+
+colnames(dfClassCodes)
+nrow(dfClassCodes)
+dfClassCodes
+
+
+for (i in 1:nrow(dfClassCodes))
+{
+  sAttribute <- dfClassCodes[i,1]
+  sCode <- dfClassCodes[i,2]
+  sDescription <- dfClassCodes[i,3]
+  
+  # i'm trying to say "check every row in dfClassifier, column sAttribute - if the code is sCode, change it to sDescription""
+  # dfClassifier[1:nrow(dfClassifier),sAttribute]
+  
+  for (j in 1:nrow(dfClassifier))
+  {
+    print(dfClassifier[j,sAttribute])
+    if(dfClassifier[j,sAttribute] == sCode)
+    {
+      dfClassifier[j,sAttribute] <- sDescription
+    }
+    print(dfClassifier[j,sAttribute])
+  }
+}
+
+dfClassifier
 
 
 
