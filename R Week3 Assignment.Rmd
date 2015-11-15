@@ -33,79 +33,96 @@ You should also have the original data file accessible through your code - for e
   
 ### Solution:
 
-First we will make a factorial function to be used in the "n chooses r" function:
+First we will import the mushroom data:
 
 ```{r}
 
-fn_calc_factorial <- function(n) {
-  
-  iproduct <- 1 # set initial value
-  
-  # build up factorial value in a loop
-  for(i in 1:n) {
-   iproduct <- iproduct * i  # multiply the product by the new value to build up the factorial
-  }
-  
-  return (iproduct)
-}
+sURL <- "https://raw.githubusercontent.com/LovinSpoonful/Week3-R/62d6aed42bdf8869a8c692c0c0108782703de249/MushData.csv"
+dfMushRoom <- read.table(file = sURL, header = FALSE, sep = ",", stringsAsFactors = FALSE)
+
+ncol(dfMushRoom)
+nrow(dfMushRoom)
 
 ```
+  
 
   
 
+Twenty two mushroom attributes are listed in https://archive.ics.uci.edu/ml/machine-learning-databases/mushroom/agaricus-lepiota.names.
 
-Next we will create the "n choose r" function:
+  
+Since there are twenty three columns in the data set, I suspect the 23rd column indicates if the mushroom is edible.
+
+
+Let's assign the mushroom attributes as the dataframe column header names:
+
 
 ```{r}
 
-fn_calc_choose <- function(n,r) {
-  
-  # we are performing this action:  n! / (( n - r)! * r!)
-  ichoose <- fn_calc_factorial(n) / (fn_calc_factorial(n - r) * fn_calc_factorial(r))
-  
-  return (ichoose)  
-}
-   
+cDim <- c("cap-shape", "cap-surface", "cap-color", "bruises", "odor", "gill-attachment", 
+          "gill-spacing", "gill-size", "gill-color", "stalk-shape", "stalk-root", 
+          "stalk-surface-above-ring", "stalk-surface-below-ring", "stalk-color-above-ring", 
+          "stalk-color-below-ring", "veil-type", "veil-color", "ring-number", "ring-type", 
+          "spore-print-color", "population", "habitat", "edible")
+
+colnames(dfMushRoom) <- cDim
+
 ```
-
-***
   
-### Test Cases
 
-**Test 1:**  If three flavors of ice cream are available, how many different double scoop cones can be made?
+  
+
+Next we will focus on the most important attributes for determining edibility. 
+
+Again, from https://archive.ics.uci.edu/ml/machine-learning-databases/mushroom/agaricus-lepiota.names -
+
+  
+  	P_1) odor=NOT(almond.OR.anise.OR.none)
+  	     120 poisonous cases missed, 98.52% accuracy
+  
+  	P_2) spore-print-color=green
+  	     48 cases missed, 99.41% accuracy
+           
+  	P_3) odor=none.AND.stalk-surface-below-ring=scaly.AND.
+  	          (stalk-color-above-ring=NOT.brown) 
+  	     8 cases missed, 99.90% accuracy
+           
+  	P_4) habitat=leaves.AND.cap-color=white
+  	         100% accuracy
+	         
+    
+    
+     odor:                     almond=a,anise=l,creosote=c,fishy=y,foul=f,
+                               musty=m,none=n,pungent=p,spicy=s
+     
+     spore-print-color:        black=k,brown=n,buff=b,chocolate=h,green=r,
+                               orange=o,purple=u,white=w,yellow=y
+     
+     stalk-surface-below-ring: fibrous=f,scaly=y,silky=k,smooth=s
+     
+     stalk-color-above-ring:   brown=n,buff=b,cinnamon=c,gray=g,orange=o,
+                               pink=p,red=e,white=w,yellow=y
+     
+     habitat:                  grasses=g,leaves=l,meadows=m,paths=p,
+                               urban=u,waste=w,woods=d                                 
+                                  
+                                  
+ 
+
 
 ```{r}
 
-test_1 <- fn_calc_choose(30, 2)
-test_1
+dfEdible <- subset(dfMushRoom, select = c("odor","spore-print-color","stalk-surface-below-ring","stalk-color-above-ring","habitat","cap-color","edible"))
+
+dfEdible
+
+
+
+
+
+
 
 ```
-
-*Answer:* `r fn_calc_choose(3, 2)`
-
-
-**Test 2:**  How many different assemblies can we build using four components if we have 15 componenents available?
-
-```{r}
-
-test_2 <- fn_calc_choose(15, 4)
-test_2
-
-```
-
-*Answer:* `r fn_calc_choose(15, 4)`
-
-
-**Test 3:**  Unit Test of factorial function:
-
-```{r}
-
- ifactorial <- fn_calc_factorial(4)  # answer should be 1 x 2 x 3 x 4 = 24.
- ifactorial
-```
-
-*Answer:* `r fn_calc_factorial(4)`
-
 
 
 

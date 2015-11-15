@@ -84,45 +84,85 @@ img {
 </div>
 <div id="solution" class="section level3">
 <h3>Solution:</h3>
-<p>First we will make a factorial function to be used in the “n chooses r” function:</p>
-<pre class="r"><code>fn_calc_factorial &lt;- function(n) {
-  
-  iproduct &lt;- 1 # set initial value
-  
-  # build up factorial value in a loop
-  for(i in 1:n) {
-   iproduct &lt;- iproduct * i  # multiply the product by the new value to build up the factorial
-  }
-  
-  return (iproduct)
-}</code></pre>
-<p>Next we will create the “n choose r” function:</p>
-<pre class="r"><code>fn_calc_choose &lt;- function(n,r) {
-  
-  # we are performing this action:  n! / (( n - r)! * r!)
-  ichoose &lt;- fn_calc_factorial(n) / (fn_calc_factorial(n - r) * fn_calc_factorial(r))
-  
-  return (ichoose)  
-}</code></pre>
-<hr />
-</div>
-<div id="test-cases" class="section level3">
-<h3>Test Cases</h3>
-<p><strong>Test 1:</strong> If three flavors of ice cream are available, how many different double scoop cones can be made?</p>
-<pre class="r"><code>test_1 &lt;- fn_calc_choose(30, 2)
-test_1</code></pre>
-<pre><code>## [1] 435</code></pre>
-<p><em>Answer:</em> 3</p>
-<p><strong>Test 2:</strong> How many different assemblies can we build using four components if we have 15 componenents available?</p>
-<pre class="r"><code>test_2 &lt;- fn_calc_choose(15, 4)
-test_2</code></pre>
-<pre><code>## [1] 1365</code></pre>
-<p><em>Answer:</em> 1365</p>
-<p><strong>Test 3:</strong> Unit Test of factorial function:</p>
-<pre class="r"><code> ifactorial &lt;- fn_calc_factorial(4)  # answer should be 1 x 2 x 3 x 4 = 24.
- ifactorial</code></pre>
-<pre><code>## [1] 24</code></pre>
-<p><em>Answer:</em> 24</p>
+<p>First we will import the mushroom data:</p>
+<pre class="r"><code>sURL &lt;- &quot;https://raw.githubusercontent.com/LovinSpoonful/Week3-R/62d6aed42bdf8869a8c692c0c0108782703de249/MushData.csv&quot;
+dfMushRoom &lt;- read.table(file = sURL, header = FALSE, sep = &quot;,&quot;, stringsAsFactors = FALSE)
+
+ncol(dfMushRoom)</code></pre>
+<pre><code>## [1] 23</code></pre>
+<pre class="r"><code>nrow(dfMushRoom)</code></pre>
+<pre><code>## [1] 12</code></pre>
+<p>Twenty two mushroom attributes are listed in <a href="https://archive.ics.uci.edu/ml/machine-learning-databases/mushroom/agaricus-lepiota.names" class="uri">https://archive.ics.uci.edu/ml/machine-learning-databases/mushroom/agaricus-lepiota.names</a>.</p>
+<p>Since there are twenty three columns in the data set, I suspect the 23rd column indicates if the mushroom is edible.</p>
+<p>Let’s assign the mushroom attributes as the dataframe column header names:</p>
+<pre class="r"><code>cDim &lt;- c(&quot;cap-shape&quot;, &quot;cap-surface&quot;, &quot;cap-color&quot;, &quot;bruises&quot;, &quot;odor&quot;, &quot;gill-attachment&quot;, 
+          &quot;gill-spacing&quot;, &quot;gill-size&quot;, &quot;gill-color&quot;, &quot;stalk-shape&quot;, &quot;stalk-root&quot;, 
+          &quot;stalk-surface-above-ring&quot;, &quot;stalk-surface-below-ring&quot;, &quot;stalk-color-above-ring&quot;, 
+          &quot;stalk-color-below-ring&quot;, &quot;veil-type&quot;, &quot;veil-color&quot;, &quot;ring-number&quot;, &quot;ring-type&quot;, 
+          &quot;spore-print-color&quot;, &quot;population&quot;, &quot;habitat&quot;, &quot;edible&quot;)
+
+colnames(dfMushRoom) &lt;- cDim</code></pre>
+<p>Next we will focus on the most important attributes for determining edibility.</p>
+<p>Again, from <a href="https://archive.ics.uci.edu/ml/machine-learning-databases/mushroom/agaricus-lepiota.names" class="uri">https://archive.ics.uci.edu/ml/machine-learning-databases/mushroom/agaricus-lepiota.names</a> -</p>
+<pre><code>P_1) odor=NOT(almond.OR.anise.OR.none)
+     120 poisonous cases missed, 98.52% accuracy
+
+P_2) spore-print-color=green
+     48 cases missed, 99.41% accuracy
+       
+P_3) odor=none.AND.stalk-surface-below-ring=scaly.AND.
+          (stalk-color-above-ring=NOT.brown) 
+     8 cases missed, 99.90% accuracy
+       
+P_4) habitat=leaves.AND.cap-color=white
+         100% accuracy
+         
+
+
+ odor:                     almond=a,anise=l,creosote=c,fishy=y,foul=f,
+                           musty=m,none=n,pungent=p,spicy=s
+ 
+ spore-print-color:        black=k,brown=n,buff=b,chocolate=h,green=r,
+                           orange=o,purple=u,white=w,yellow=y
+ 
+ stalk-surface-below-ring: fibrous=f,scaly=y,silky=k,smooth=s
+ 
+ stalk-color-above-ring:   brown=n,buff=b,cinnamon=c,gray=g,orange=o,
+                           pink=p,red=e,white=w,yellow=y
+ 
+ habitat:                  grasses=g,leaves=l,meadows=m,paths=p,
+                           urban=u,waste=w,woods=d                                 
+                              
+                              </code></pre>
+<pre class="r"><code>dfEdible &lt;- subset(dfMushRoom, select = c(&quot;odor&quot;,&quot;spore-print-color&quot;,&quot;stalk-surface-below-ring&quot;,&quot;stalk-color-above-ring&quot;,&quot;habitat&quot;,&quot;cap-color&quot;,&quot;edible&quot;))
+
+dfEdible</code></pre>
+<pre><code>##    odor spore-print-color stalk-surface-below-ring stalk-color-above-ring
+## 1     t                 p                        s                      s
+## 2     t                 p                        s                      s
+## 3     t                 p                        s                      s
+## 4     t                 p                        s                      s
+## 5     f                 e                        s                      s
+## 6     t                 p                        s                      s
+## 7     t                 p                        s                      s
+## 8     t                 p                        s                      s
+## 9     t                 p                        s                      s
+## 10    t                 p                        s                      s
+## 11    t                 p                        s                      s
+## 12    t                 p                        s                      s
+##    habitat cap-color edible
+## 1        s         s      u
+## 2        n         s      g
+## 3        n         s      m
+## 4        s         y      u
+## 5        a         s      g
+## 6        n         y      g
+## 7        n         s      m
+## 8        s         y      m
+## 9        v         y      g
+## 10       s         s      m
+## 11       n         y      g
+## 12       s         y      m</code></pre>
 </div>
 
 
