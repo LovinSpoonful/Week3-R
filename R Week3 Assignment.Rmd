@@ -33,7 +33,7 @@ You should also have the original data file accessible through your code - for e
   
 ### Solution:
 
-First we will import the mushroom data:
+First we will import a few rows of the ICS mushroom data set, excerpted from https://archive.ics.uci.edu/ml/machine-learning-databases/mushroom/agaricus-lepiota.data.
 
 ```{r}
 
@@ -46,14 +46,12 @@ head(dfMushRoom)  # verification
 ```
   
 
-  
 
-Twenty two mushroom attributes are listed in https://archive.ics.uci.edu/ml/machine-learning-databases/mushroom/agaricus-lepiota.names.
-
-The first column in the dataset is the classification (edible / poisonous), the rest are the mushroom characteristics.
+The first column in the dataset is the calculated classification (edible / poisonous); the other 22 are the observed mushroom characteristics.
 
 
-Let's assign the dataset column headers to the dataframe column headers:
+The data is very hard to understand because the column headers are just cryptic codes.  Let's replace them with real descriptions from the source study, which we find here:
+https://archive.ics.uci.edu/ml/machine-learning-databases/mushroom/agaricus-lepiota.names.
 
 
 ```{r}
@@ -74,9 +72,7 @@ head(dfMushRoom)
 
   
 
-Next we will focus on the most important attributes for determining edibility. 
-
-Again, from https://archive.ics.uci.edu/ml/machine-learning-databases/mushroom/agaricus-lepiota.names -
+Next we will focus on the most important attributes for determining edibility, according to the commentary below from the source study - https://archive.ics.uci.edu/ml/machine-learning-databases/mushroom/agaricus-lepiota.names -
 
   
   	P_1) odor=NOT(almond.OR.anise.OR.none)
@@ -111,28 +107,35 @@ Again, from https://archive.ics.uci.edu/ml/machine-learning-databases/mushroom/a
                                pink=p,purple=u,red=e,white=w,yellow=y
 
 
-Let's make a subset of classifier attribute names:
+Here are the main characteristics that determine if you will die after you eat the mushroom:
 
 ```{r}
 
-# todo: find a way not to hard code these literals
+# todo: don't hard code these literals -  get them from the Class Codes headers
 dfClassifier <- subset(dfMushRoom, select = c("edible","odor","spore-print-color","stalk-surface-below-ring","stalk-color-above-ring","habitat","cap-color"))
-colnames(dfClassifier)
-
 dfClassifier
 
+```
 
 
+That looks a little better but we still have a bunch of cryptic data in the values.  Let's use a lookup table to cross references the mushroom attribute values to human-friendly terms:
+
+```{r}
 
 #  get the key classifiers, value codes and value decriptions
-
-sURL = "https://raw.githubusercontent.com/LovinSpoonful/Week3-R/74daca35112f48ccc47d6ee33d8c9c3458c3cfb4/AttributeValues.csv"
+sURL =   "https://raw.githubusercontent.com/LovinSpoonful/Week3-R/1646a130a20704f936a5da89cd03bcddef14a694/AttributeValues.csv"
 dfClassCodes <- read.table(file = sURL, header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
 colnames(dfClassCodes)
 nrow(dfClassCodes)
 dfClassCodes
 
+```
+
+
+We use a nested loop to overwrite the cryptic values with human friendly terms:
+
+```{r}
 
 for (i in 1:nrow(dfClassCodes))
 {
@@ -140,23 +143,16 @@ for (i in 1:nrow(dfClassCodes))
   sCode <- dfClassCodes[i,2]
   sDescription <- dfClassCodes[i,3]
   
-  # i'm trying to say "check every row in dfClassifier, column sAttribute - if the code is sCode, change it to sDescription""
-  # dfClassifier[1:nrow(dfClassifier),sAttribute]
-  
   for (j in 1:nrow(dfClassifier))
   {
-    print(dfClassifier[j,sAttribute])
     if(dfClassifier[j,sAttribute] == sCode)
     {
       dfClassifier[j,sAttribute] <- sDescription
     }
-    print(dfClassifier[j,sAttribute])
   }
 }
 
 dfClassifier
-
-
 
 ```
 
